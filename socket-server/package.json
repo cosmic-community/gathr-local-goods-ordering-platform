@@ -1,0 +1,14 @@
+{
+  "name": "gathr-socket-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "socket.io": "^4.6.1",
+    "dotenv": "^16.3.1"
+  }
+}
