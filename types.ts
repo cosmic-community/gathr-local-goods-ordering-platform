@@ -153,3 +153,75 @@ export interface Location {
 export interface NearbyShopResult extends Shop {
   distance: number
 }
+
+// Supabase Database Schema Types
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: User
+        Insert: Omit<User, 'created_at'>
+        Update: Partial<Omit<User, 'id' | 'created_at'>>
+      }
+      carts: {
+        Row: {
+          id: string
+          user_id: string
+          status: 'active' | 'checked_out'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          status?: 'active' | 'checked_out'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<{
+          status: 'active' | 'checked_out'
+          updated_at: string
+        }>
+      }
+      cart_items: {
+        Row: CartItem
+        Insert: Omit<CartItem, 'id'>
+        Update: Partial<Omit<CartItem, 'id' | 'cart_id'>>
+      }
+      orders: {
+        Row: Order
+        Insert: Omit<Order, 'id' | 'created_at' | 'updated_at' | 'items'>
+        Update: Partial<Omit<Order, 'id' | 'customer_id' | 'created_at' | 'items'>>
+      }
+      order_items: {
+        Row: {
+          id: string
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity: number
+          price: number
+          created_at: string
+        }
+        Insert: Omit<{
+          id?: string
+          order_id: string
+          product_id: string
+          product_name: string
+          quantity: number
+          price: number
+          created_at?: string
+        }, 'id' | 'created_at'>
+        Update: Partial<{
+          quantity: number
+          price: number
+        }>
+      }
+      payments: {
+        Row: Payment
+        Insert: Omit<Payment, 'id' | 'created_at'>
+        Update: Partial<Omit<Payment, 'id' | 'order_id' | 'created_at'>>
+      }
+    }
+  }
+}

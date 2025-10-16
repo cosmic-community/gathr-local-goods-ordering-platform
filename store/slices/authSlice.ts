@@ -11,7 +11,7 @@ const initialState: AuthState = {
 export const signIn = createAsyncThunk(
   'auth/signIn',
   async ({ email, password }: { email: string; password: string }) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase().auth.signInWithPassword({
       email,
       password,
     })
@@ -19,7 +19,7 @@ export const signIn = createAsyncThunk(
     if (error) throw error
     
     // Fetch user profile with role
-    const { data: profile } = await supabase
+    const { data: profile } = await supabase()
       .from('users')
       .select('*')
       .eq('id', data.user.id)
@@ -42,7 +42,7 @@ export const signUp = createAsyncThunk(
     name: string
     role: 'customer' | 'merchant' | 'delivery'
   }) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase().auth.signUp({
       email,
       password,
     })
@@ -51,7 +51,7 @@ export const signUp = createAsyncThunk(
     if (!data.user) throw new Error('Sign up failed')
     
     // Create user profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabase()
       .from('users')
       .insert({
         id: data.user.id,
@@ -69,7 +69,7 @@ export const signUp = createAsyncThunk(
 )
 
 export const signOut = createAsyncThunk('auth/signOut', async () => {
-  const { error } = await supabase.auth.signOut()
+  const { error } = await supabase().auth.signOut()
   if (error) throw error
 })
 

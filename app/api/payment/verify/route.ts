@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     
     if (isValid) {
       // Update payment status
-      await supabase
+      await supabase()
         .from('payments')
         .update({
           status: 'completed',
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         .eq('order_id', order_id)
       
       // Update order status
-      await supabase
+      await supabase()
         .from('orders')
         .update({
           status: 'confirmed',

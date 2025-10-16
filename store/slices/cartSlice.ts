@@ -11,7 +11,7 @@ const initialState: CartState = {
 export const fetchCart = createAsyncThunk(
   'cart/fetch',
   async (userId: string) => {
-    const { data: cart, error } = await supabase
+    const { data: cart, error } = await supabase()
       .from('carts')
       .select('*, items:cart_items(*)')
       .eq('user_id', userId)
@@ -22,7 +22,7 @@ export const fetchCart = createAsyncThunk(
     
     if (!cart) {
       // Create new cart
-      const { data: newCart, error: createError } = await supabase
+      const { data: newCart, error: createError } = await supabase()
         .from('carts')
         .insert({ user_id: userId, status: 'active' })
         .select('*, items:cart_items(*)')
@@ -52,7 +52,7 @@ export const addToCart = createAsyncThunk(
     price: number
   }) => {
     // Check if item already exists
-    const { data: existingItem } = await supabase
+    const { data: existingItem } = await supabase()
       .from('cart_items')
       .select('*')
       .eq('cart_id', cartId)
@@ -61,7 +61,7 @@ export const addToCart = createAsyncThunk(
     
     if (existingItem) {
       // Update quantity
-      const { data, error } = await supabase
+      const { data, error } = await supabase()
         .from('cart_items')
         .update({ quantity: existingItem.quantity + quantity })
         .eq('id', existingItem.id)
@@ -72,7 +72,7 @@ export const addToCart = createAsyncThunk(
       return data as CartItem
     } else {
       // Add new item
-      const { data, error } = await supabase
+      const { data, error } = await supabase()
         .from('cart_items')
         .insert({
           cart_id: cartId,
@@ -93,7 +93,7 @@ export const addToCart = createAsyncThunk(
 export const removeFromCart = createAsyncThunk(
   'cart/removeItem',
   async (itemId: string) => {
-    const { error } = await supabase
+    const { error } = await supabase()
       .from('cart_items')
       .delete()
       .eq('id', itemId)
@@ -106,7 +106,7 @@ export const removeFromCart = createAsyncThunk(
 export const updateCartItemQuantity = createAsyncThunk(
   'cart/updateQuantity',
   async ({ itemId, quantity }: { itemId: string; quantity: number }) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('cart_items')
       .update({ quantity })
       .eq('id', itemId)

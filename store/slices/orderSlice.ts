@@ -12,7 +12,7 @@ const initialState: OrderState = {
 export const fetchOrders = createAsyncThunk(
   'orders/fetch',
   async (userId: string) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('orders')
       .select('*, items:order_items(*)')
       .eq('customer_id', userId)
@@ -26,7 +26,7 @@ export const fetchOrders = createAsyncThunk(
 export const fetchOrderById = createAsyncThunk(
   'orders/fetchById',
   async (orderId: string) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('orders')
       .select('*, items:order_items(*)')
       .eq('id', orderId)
@@ -40,7 +40,7 @@ export const fetchOrderById = createAsyncThunk(
 export const createOrder = createAsyncThunk(
   'orders/create',
   async (orderData: Partial<Order>) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('orders')
       .insert(orderData)
       .select()
@@ -54,7 +54,7 @@ export const createOrder = createAsyncThunk(
 export const updateOrderStatus = createAsyncThunk(
   'orders/updateStatus',
   async ({ orderId, status }: { orderId: string; status: string }) => {
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('orders')
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', orderId)
