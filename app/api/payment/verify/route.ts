@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { supabase } from '@/lib/supabase'
+import { Database } from '@/types'
+
+type PaymentUpdate = Database['public']['Tables']['payments']['Update']
+type OrderUpdate = Database['public']['Tables']['orders']['Update']
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,23 +25,27 @@ export async function POST(request: NextRequest) {
     const isValid = expectedSignature === razorpay_signature
     
     if (isValid) {
-      // Update payment status
+      // Update payment status with proper typing
+      const paymentUpdate: PaymentUpdate = {
+        status: 'completed',
+        razorpay_payment_id,
+        razorpay_order_id,
+      }
+      
       await supabase()
         .from('payments')
-        .update({
-          status: 'completed',
-          razorpay_payment_id,
-          razorpay_order_id,
-        })
+        .update(paymentUpdate)
         .eq('order_id', order_id)
       
-      // Update order status
+      // Update order status with proper typing
+      const orderUpdate: OrderUpdate = {
+        status: 'confirmed',
+        transaction_id: razorpay_payment_id,
+      }
+      
       await supabase()
         .from('orders')
-        .update({
-          status: 'confirmed',
-          transaction_id: razorpay_payment_id,
-        })
+        .update(orderUpdate)
         .eq('id', order_id)
       
       return NextResponse.json({ success: true })

@@ -1,6 +1,9 @@
 // app/api/orders/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { Database } from '@/types'
+
+type OrderUpdate = Database['public']['Tables']['orders']['Update']
 
 export async function GET(
   request: NextRequest,
@@ -38,7 +41,7 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params
-    const updates = await request.json()
+    const updates = await request.json() as OrderUpdate
     
     const { data, error } = await supabase()
       .from('orders')

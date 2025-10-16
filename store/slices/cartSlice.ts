@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { supabase } from '@/lib/supabase'
-import { CartState, Cart, CartItem } from '@/types'
+import { CartState, Cart, CartItem, Database } from '@/types'
+
+type CartInsert = Database['public']['Tables']['carts']['Insert']
+type CartItemInsert = Database['public']['Tables']['cart_items']['Insert']
+type CartItemUpdate = Database['public']['Tables']['cart_items']['Update']
 
 const initialState: CartState = {
   cart: null,
@@ -21,10 +25,15 @@ export const fetchCart = createAsyncThunk(
     if (error && error.code !== 'PGRST116') throw error
     
     if (!cart) {
-      // Create new cart
+      // Create new cart with proper typing
+      const cartInsert: CartInsert = {
+        user_id: userId,
+        status: 'active'
+      }
+      
       const { data: newCart, error: createError } = await supabase()
         .from('carts')
-        .insert({ user_id: userId, status: 'active' })
+        .insert(cartInsert)
         .select('*, items:cart_items(*)')
         .single()
       
@@ -60,10 +69,14 @@ export const addToCart = createAsyncThunk(
       .single()
     
     if (existingItem) {
-      // Update quantity
+      // Update quantity with proper typing
+      const update: CartItemUpdate = {
+        quantity: existingItem.quantity + quantity
+      }
+      
       const { data, error } = await supabase()
         .from('cart_items')
-        .update({ quantity: existingItem.quantity + quantity })
+        .update(update)
         .eq('id', existingItem.id)
         .select()
         .single()
@@ -71,16 +84,18 @@ export const addToCart = createAsyncThunk(
       if (error) throw error
       return data as CartItem
     } else {
-      // Add new item
+      // Add new item with proper typing
+      const insert: CartItemInsert = {
+        cart_id: cartId,
+        product_id: productId,
+        shop_id: shopId,
+        quantity,
+        price,
+      }
+      
       const { data, error } = await supabase()
         .from('cart_items')
-        .insert({
-          cart_id: cartId,
-          product_id: productId,
-          shop_id: shopId,
-          quantity,
-          price,
-        })
+        .insert(insert)
         .select()
         .single()
       
@@ -106,9 +121,11 @@ export const removeFromCart = createAsyncThunk(
 export const updateCartItemQuantity = createAsyncThunk(
   'cart/updateQuantity',
   async ({ itemId, quantity }: { itemId: string; quantity: number }) => {
+    const update: CartItemUpdate = { quantity }
+    
     const { data, error } = await supabase()
       .from('cart_items')
-      .update({ quantity })
+      .update(update)
       .eq('id', itemId)
       .select()
       .single()

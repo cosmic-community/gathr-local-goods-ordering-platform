@@ -159,9 +159,31 @@ export interface Database {
   public: {
     Tables: {
       users: {
-        Row: User
-        Insert: Omit<User, 'created_at'>
-        Update: Partial<Omit<User, 'id' | 'created_at'>>
+        Row: {
+          id: string
+          email: string
+          name: string
+          role: 'customer' | 'merchant' | 'delivery'
+          phone: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          name: string
+          role: 'customer' | 'merchant' | 'delivery'
+          phone?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          email?: string
+          name?: string
+          role?: 'customer' | 'merchant' | 'delivery'
+          phone?: string | null
+          updated_at?: string
+        }
       }
       carts: {
         Row: {
@@ -178,20 +200,80 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
-        Update: Partial<{
-          status: 'active' | 'checked_out'
-          updated_at: string
-        }>
+        Update: {
+          status?: 'active' | 'checked_out'
+          updated_at?: string
+        }
       }
       cart_items: {
-        Row: CartItem
-        Insert: Omit<CartItem, 'id'>
-        Update: Partial<Omit<CartItem, 'id' | 'cart_id'>>
+        Row: {
+          id: string
+          cart_id: string
+          product_id: string
+          shop_id: string
+          quantity: number
+          price: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          cart_id: string
+          product_id: string
+          shop_id: string
+          quantity: number
+          price: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          quantity?: number
+          price?: number
+          updated_at?: string
+        }
       }
       orders: {
-        Row: Order
-        Insert: Omit<Order, 'id' | 'created_at' | 'updated_at' | 'items'>
-        Update: Partial<Omit<Order, 'id' | 'customer_id' | 'created_at' | 'items'>>
+        Row: {
+          id: string
+          customer_id: string
+          shop_id: string
+          delivery_id: string | null
+          delivery_address: string
+          delivery_lat: number
+          delivery_lng: number
+          status: OrderStatus
+          payment_method: PaymentMethod
+          transaction_id: string | null
+          total_amount: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id: string
+          shop_id: string
+          delivery_id?: string | null
+          delivery_address: string
+          delivery_lat: number
+          delivery_lng: number
+          status?: OrderStatus
+          payment_method: PaymentMethod
+          transaction_id?: string | null
+          total_amount: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          delivery_id?: string | null
+          delivery_address?: string
+          delivery_lat?: number
+          delivery_lng?: number
+          status?: OrderStatus
+          payment_method?: PaymentMethod
+          transaction_id?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
       }
       order_items: {
         Row: {
@@ -203,7 +285,7 @@ export interface Database {
           price: number
           created_at: string
         }
-        Insert: Omit<{
+        Insert: {
           id?: string
           order_id: string
           product_id: string
@@ -211,17 +293,50 @@ export interface Database {
           quantity: number
           price: number
           created_at?: string
-        }, 'id' | 'created_at'>
-        Update: Partial<{
-          quantity: number
-          price: number
-        }>
+        }
+        Update: {
+          quantity?: number
+          price?: number
+        }
       }
       payments: {
-        Row: Payment
-        Insert: Omit<Payment, 'id' | 'created_at'>
-        Update: Partial<Omit<Payment, 'id' | 'order_id' | 'created_at'>>
+        Row: {
+          id: string
+          order_id: string
+          amount: number
+          method: PaymentMethod
+          status: PaymentStatus
+          razorpay_payment_id: string | null
+          razorpay_order_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          amount: number
+          method: PaymentMethod
+          status?: PaymentStatus
+          razorpay_payment_id?: string | null
+          razorpay_order_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          amount?: number
+          method?: PaymentMethod
+          status?: PaymentStatus
+          razorpay_payment_id?: string | null
+          razorpay_order_id?: string | null
+        }
       }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
     }
   }
 }

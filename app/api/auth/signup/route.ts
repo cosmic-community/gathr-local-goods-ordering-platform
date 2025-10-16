@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServiceSupabase } from '@/lib/supabase'
+import { Database } from '@/types'
+
+type UserInsert = Database['public']['Tables']['users']['Insert']
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,15 +39,17 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Create user profile
+    // Create user profile with proper typing
+    const userInsert: UserInsert = {
+      id: authData.user.id,
+      email,
+      name,
+      role: role as 'customer' | 'merchant' | 'delivery',
+    }
+    
     const { data: profile, error: profileError } = await supabase
       .from('users')
-      .insert({
-        id: authData.user.id,
-        email,
-        name,
-        role,
-      })
+      .insert(userInsert)
       .select()
       .single()
     

@@ -19,11 +19,13 @@ export const signIn = createAsyncThunk(
     if (error) throw error
     
     // Fetch user profile with role
-    const { data: profile } = await supabase()
+    const { data: profile, error: profileError } = await supabase()
       .from('users')
       .select('*')
       .eq('id', data.user.id)
       .single()
+    
+    if (profileError) throw profileError
     
     return profile as User
   }

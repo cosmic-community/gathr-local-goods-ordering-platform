@@ -1,6 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import { supabase } from '@/lib/supabase'
-import { OrderState, Order } from '@/types'
+import { OrderState, Order, Database } from '@/types'
+
+type OrderInsert = Database['public']['Tables']['orders']['Insert']
+type OrderUpdate = Database['public']['Tables']['orders']['Update']
 
 const initialState: OrderState = {
   orders: [],
@@ -40,9 +43,20 @@ export const fetchOrderById = createAsyncThunk(
 export const createOrder = createAsyncThunk(
   'orders/create',
   async (orderData: Partial<Order>) => {
+    const insert: OrderInsert = {
+      customer_id: orderData.customer_id!,
+      shop_id: orderData.shop_id!,
+      delivery_address: orderData.delivery_address!,
+      delivery_lat: orderData.delivery_lat!,
+      delivery_lng: orderData.delivery_lng!,
+      payment_method: orderData.payment_method!,
+      total_amount: orderData.total_amount!,
+      status: orderData.status || 'pending',
+    }
+    
     const { data, error } = await supabase()
       .from('orders')
-      .insert(orderData)
+      .insert(insert)
       .select()
       .single()
     
@@ -54,9 +68,14 @@ export const createOrder = createAsyncThunk(
 export const updateOrderStatus = createAsyncThunk(
   'orders/updateStatus',
   async ({ orderId, status }: { orderId: string; status: string }) => {
+    const update: OrderUpdate = {
+      status: status as 'pending' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled',
+      updated_at: new Date().toISOString()
+    }
+    
     const { data, error } = await supabase()
       .from('orders')
-      .update({ status, updated_at: new Date().toISOString() })
+      .update(update)
       .eq('id', orderId)
       .select()
       .single()

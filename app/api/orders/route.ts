@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
+import { Database } from '@/types'
+
+type OrderInsert = Database['public']['Tables']['orders']['Insert']
+type OrderItemInsert = Database['public']['Tables']['order_items']['Insert']
+type PaymentInsert = Database['public']['Tables']['payments']['Insert']
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,19 +18,21 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Create order
+    // Create order with proper typing
+    const orderInsert: OrderInsert = {
+      customer_id: orderData.customer_id,
+      shop_id: orderData.shop_id,
+      delivery_address: orderData.delivery_address,
+      delivery_lat: orderData.delivery_lat,
+      delivery_lng: orderData.delivery_lng,
+      payment_method: orderData.payment_method,
+      total_amount: orderData.total_amount,
+      status: 'pending',
+    }
+    
     const { data: order, error: orderError } = await supabase()
       .from('orders')
-      .insert({
-        customer_id: orderData.customer_id,
-        shop_id: orderData.shop_id,
-        delivery_address: orderData.delivery_address,
-        delivery_lat: orderData.delivery_lat,
-        delivery_lng: orderData.delivery_lng,
-        payment_method: orderData.payment_method,
-        total_amount: orderData.total_amount,
-        status: 'pending',
-      })
+      .insert(orderInsert)
       .select()
       .single()
     
@@ -38,7 +45,7 @@ export async function POST(request: NextRequest) {
     
     // Create order items
     if (orderData.items && orderData.items.length > 0) {
-      const orderItems = orderData.items.map((item: any) => ({
+      const orderItems: OrderItemInsert[] = orderData.items.map((item: any) => ({
         order_id: order.id,
         product_id: item.product_id,
         product_name: item.product_name,
@@ -55,15 +62,17 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Create payment record
+    // Create payment record with proper typing
+    const paymentInsert: PaymentInsert = {
+      order_id: order.id,
+      amount: orderData.total_amount,
+      method: orderData.payment_method,
+      status: 'pending',
+    }
+    
     const { error: paymentError } = await supabase()
       .from('payments')
-      .insert({
-        order_id: order.id,
-        amount: orderData.total_amount,
-        method: orderData.payment_method,
-        status: 'pending',
-      })
+      .insert(paymentInsert)
     
     if (paymentError) {
       console.error('Error creating payment record:', paymentError)
