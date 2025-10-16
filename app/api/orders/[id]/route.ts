@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { id } = await params
     
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('orders')
       .select('*, items:order_items(*)')
       .eq('id', id)
@@ -40,7 +40,7 @@ export async function PATCH(
     const { id } = await params
     const updates = await request.json()
     
-    const { data, error } = await supabase
+    const { data, error } = await supabase()
       .from('orders')
       .update(updates)
       .eq('id', id)

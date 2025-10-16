@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Create order
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabase()
       .from('orders')
       .insert({
         customer_id: orderData.customer_id,
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         price: item.price,
       }))
       
-      const { error: itemsError } = await supabase
+      const { error: itemsError } = await supabase()
         .from('order_items')
         .insert(orderItems)
       
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Create payment record
-    const { error: paymentError } = await supabase
+    const { error: paymentError } = await supabase()
       .from('payments')
       .insert({
         order_id: order.id,
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     const customerId = searchParams.get('customer_id')
     const deliveryId = searchParams.get('delivery_id')
     
-    let query = supabase
+    let query = supabase()
       .from('orders')
       .select('*, items:order_items(*)')
       .order('created_at', { ascending: false })
